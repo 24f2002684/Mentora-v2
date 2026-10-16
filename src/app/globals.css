@@ -1,0 +1,247 @@
+@import "tailwindcss";
+
+:root {
+  --background: #F6FAF9;
+  --surface: #FFFFFF;
+  --surface-raised: #FFFFFF;
+  --surface-tint: rgba(13, 148, 136, 0.07);
+  --foreground: #0F1F1D;
+  --muted: #5B6F6C;
+  --muted-bg: #EAF2F0;
+  --border: #E1ECEA;
+  
+  --primary: #0D9488;
+  --primary-hover: #0F766E;
+  --primary-pressed: #115E59;
+  --primary-foreground: #FFFFFF;
+  --primary-soft: rgba(13, 148, 136, 0.12);
+
+  --secondary: #EAF2F0;
+  --secondary-foreground: #0F1F1D;
+
+  --amber: #D97706;
+  --amber-soft: #FEF3C7;
+  --rose: #E11D48;
+  --rose-soft: #FFE4E6;
+  --emerald: #059669;
+  --emerald-soft: #D1FAE5;
+
+  --card-radius: 20px;
+  --input-radius: 14px;
+  --pill-radius: 9999px;
+  
+  --shadow-subtle: 0 4px 20px -2px rgba(15, 31, 29, 0.05);
+  --shadow-card: 0 6px 24px -4px rgba(15, 31, 29, 0.07);
+}
+
+.dark {
+  --background: #0B1416;
+  --surface: #111E21;
+  --surface-raised: #162A2E;
+  --surface-tint: rgba(45, 212, 191, 0.08);
+  --foreground: #E8F3F1;
+  --muted: #8FA7A3;
+  --muted-bg: #15272B;
+  --border: #1F3A3F;
+
+  --primary: #2DD4BF;
+  --primary-hover: #5EEAD4;
+  --primary-pressed: #14B8A6;
+  --primary-foreground: #0B1416;
+  --primary-soft: rgba(45, 212, 191, 0.15);
+
+  --secondary: #162A2E;
+  --secondary-foreground: #E8F3F1;
+
+  --amber: #FBBF24;
+  --amber-soft: rgba(245, 158, 11, 0.18);
+  --rose: #FB7185;
+  --rose-soft: rgba(244, 63, 94, 0.18);
+  --emerald: #34D399;
+  --emerald-soft: rgba(16, 185, 129, 0.18);
+
+  --shadow-subtle: 0 4px 20px -2px rgba(0, 0, 0, 0.35);
+  --shadow-card: 0 6px 24px -4px rgba(0, 0, 0, 0.45);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-surface-raised: var(--surface-raised);
+  --color-surface-tint: var(--surface-tint);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-muted-bg: var(--muted-bg);
+  --color-border: var(--border);
+
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-pressed: var(--primary-pressed);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary-soft: var(--primary-soft);
+
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+
+  --color-amber-brand: var(--amber);
+  --color-amber-soft: var(--amber-soft);
+  --color-rose-brand: var(--rose);
+  --color-rose-soft: var(--rose-soft);
+  --color-emerald-brand: var(--emerald);
+  --color-emerald-soft: var(--emerald-soft);
+
+  --font-sans: var(--font-manrope), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-manrope), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 15px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom Mentora Component Styles */
+.mentora-card {
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--card-radius);
+  box-shadow: var(--shadow-card);
+  transition: all 0.2s ease-in-out;
+}
+
+.mentora-card-interactive {
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--card-radius);
+  box-shadow: var(--shadow-card);
+  transition: all 0.2s ease-in-out;
+}
+
+.mentora-card-interactive:hover {
+  border-color: var(--primary);
+  box-shadow: 0 8px 30px -4px var(--primary-soft);
+  transform: translateY(-2px);
+}
+
+.mentora-input {
+  background-color: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: var(--input-radius);
+  color: var(--foreground);
+  min-height: 44px;
+  padding: 0.625rem 1rem;
+  font-size: 15px;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  width: 100%;
+}
+
+.mentora-input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-soft);
+}
+
+.mentora-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: var(--pill-radius);
+  background-color: var(--primary);
+  color: var(--primary-foreground);
+  font-weight: 600;
+  min-height: 44px;
+  padding: 0.625rem 1.5rem;
+  font-size: 15px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  border: none;
+  text-decoration: none;
+}
+
+.mentora-btn-primary:hover {
+  background-color: var(--primary-hover);
+  transform: translateY(-1px);
+}
+
+.mentora-btn-primary:active {
+  background-color: var(--primary-pressed);
+  transform: translateY(0);
+}
+
+.mentora-btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: var(--pill-radius);
+  background-color: var(--muted-bg);
+  color: var(--foreground);
+  border: 1px solid var(--border);
+  font-weight: 600;
+  min-height: 44px;
+  padding: 0.625rem 1.5rem;
+  font-size: 15px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.mentora-btn-secondary:hover {
+  background-color: var(--surface-tint);
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+/* Badges */
+.mentora-badge-teal {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: var(--pill-radius);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  background-color: var(--primary-soft);
+  color: var(--primary);
+  border: 1px solid var(--primary-soft);
+}
+
+.mentora-badge-amber {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: var(--pill-radius);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  background-color: var(--amber-soft);
+  color: var(--amber);
+}
+
+.mentora-badge-emerald {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: var(--pill-radius);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  background-color: var(--emerald-soft);
+  color: var(--emerald);
+}
+
+.mentora-badge-rose {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: var(--pill-radius);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  background-color: var(--rose-soft);
+  color: var(--rose);
+}
