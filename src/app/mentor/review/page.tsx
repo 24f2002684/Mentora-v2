@@ -18,6 +18,9 @@ import {
   ChevronRight,
   AlertCircle,
   User,
+  Sparkles,
+  RefreshCw,
+  ShieldCheck,
 } from 'lucide-react';
 
 export default function MentorReviewPage() {
@@ -32,6 +35,9 @@ export default function MentorReviewPage() {
   const [rating, setRating] = useState(5);
   const [competencyScores, setCompetencyScores] = useState<Record<string, number>>({});
   const [toastMessage, setToastMessage] = useState('');
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [safetyNotice, setSafetyNotice] = useState<string | null>(null);
+  const [aiEvidence, setAiEvidence] = useState<Record<string, string>>({});
 
   const toReviewList = submissions.filter((s) => !s.review);
   const reviewedList = submissions.filter((s) => !!s.review);
@@ -41,6 +47,46 @@ export default function MentorReviewPage() {
   const showToast = (msg: string) => {
     setToastMessage(msg);
     setTimeout(() => setToastMessage(''), 3500);
+  };
+
+  const handleAnalyzeWithAI = async () => {
+    if (!selectedSubmission) return;
+    const task = store.tasks.find((t) => t.id === selectedSubmission.task_id);
+    setIsAnalyzing(true);
+    setSafetyNotice(null);
+
+    try {
+      const res = await fetch('/api/ai/analyze', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          studentId: task?.student_id,
+          taskId: task?.id,
+          submissionText: selectedSubmission.reflection || selectedSubmission.remarks || 'Practical execution completed.',
+          taskTitle: task?.title,
+          focusCompetencies: task?.focus_competencies,
+        }),
+      });
+
+      if (!res.ok) throw new Error('AI analysis failed');
+      const data = await res.json();
+
+      if (data.suggestedFeedback) setFeedback(data.suggestedFeedback);
+      if (data.suggestedGrade) setGrade(data.suggestedGrade);
+      if (data.competencyRatings) {
+        setCompetencyScores((prev) => ({ ...prev, ...data.competencyRatings }));
+      }
+      if (data.evidence) setAiEvidence(data.evidence);
+      if (data.safetyFlag?.triggered) {
+        setSafetyNotice(`Welfare Attention (${data.safetyFlag.severity}): ${data.safetyFlag.reason}`);
+      }
+      showToast('AI rubric evaluation applied! Review and adjust as needed.');
+    } catch (err) {
+      console.error(err);
+      showToast('Could not complete AI analysis.');
+    } finally {
+      setIsAnalyzing(false);
+    }
   };
 
   const handleOpenReview = (sub: Submission) => {
@@ -313,6 +359,37 @@ export default function MentorReviewPage() {
                 </div>
               )}
             </div>
+
+            {/* AI Assistant Quick Evaluation Helper */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 rounded-[14px] bg-primary/5 border border-primary/20">
+              <div className="space-y-0.5">
+                <span className="text-[11px] font-bold text-foreground flex items-center gap-1.5">
+                  <Sparkles className="w-3.5 h-3.5 text-primary" />
+                  Gemini Rubric Pre-Evaluation
+                </span>
+                <p className="text-[10px] text-muted">
+                  Auto-evaluates depth and pre-fills grade, feedback, and competency scores.
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={handleAnalyzeWithAI}
+                disabled={isAnalyzing}
+                className="mentora-btn-secondary text-xs px-3.5 py-1.5 shrink-0 border-primary/30 text-primary hover:bg-primary/10"
+              >
+                <Sparkles className={`w-3.5 h-3.5 ${isAnalyzing ? 'animate-spin' : ''}`} />
+                <span>{isAnalyzing ? 'Analyzing with AI...' : 'Analyze with AI'}</span>
+              </button>
+            </div>
+
+            {/* Safety alert if triggered */}
+            {safetyNotice && (
+              <div className="p-3 rounded-[12px] bg-rose-500/10 border border-rose-500/30 text-rose-600 dark:text-rose-400 text-xs flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 shrink-0" />
+                <span>{safetyNotice}</span>
+              </div>
+            )}
 
             {/* Form */}
             <form onSubmit={handleSaveEvaluation} className="space-y-4 text-xs">

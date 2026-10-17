@@ -11,6 +11,7 @@ import {
   Review,
   CompetencyScore,
   Activity,
+  ActivityAttempt,
   Resource,
   Gamification,
   ChatThread,
@@ -34,7 +35,10 @@ export interface MockDataStore {
   reviews: Review[];
   competencyScores: CompetencyScore[];
   activities: Activity[];
+  activityAttempts: ActivityAttempt[];
   resources: Resource[];
+  bookmarkedResources: Record<string, string[]>;
+  completedResources: Record<string, string[]>;
   gamification: Record<string, Gamification>;
   chatThreads: ChatThread[];
   chatMessages: ChatMessage[];
@@ -666,7 +670,25 @@ function initializeStore(): MockDataStore {
     reviews,
     competencyScores,
     activities,
+    activityAttempts: [
+      {
+        id: 'att-1',
+        student_id: 'student-1',
+        activity_id: 'act-1',
+        response: 'I would prioritize a hybrid timber raft for immediate harvest transit while commissioning community-sourced materials for a permanent bridge. This prevents harvest spoilage within 72 hours without taking on predatory debt.',
+        ai_feedback: 'Superb first-principles reasoning. You decoupled the urgent temporal blocker (harvest expiration) from the long-term infrastructure investment.',
+        score: 4.8,
+        duration_seconds: 180,
+        completed_at: new Date(Date.now() - 2 * 86400000).toISOString(),
+      },
+    ],
     resources,
+    bookmarkedResources: {
+      'student-1': ['res-1', 'res-5'],
+    },
+    completedResources: {
+      'student-1': ['res-1'],
+    },
     gamification,
     chatThreads,
     chatMessages,
@@ -1067,6 +1089,158 @@ export function updateThreadSummary(threadId: string, summary: string): void {
     thread.summary = summary;
   }
 }
+
+// Activity & Gamification Store Operations
+export function addActivity(activity: Omit<Activity, 'id' | 'created_at'>): Activity {
+  const store = getMockStore();
+  const newActivity: Activity = {
+    ...activity,
+    id: `act-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+    created_at: new Date().toISOString(),
+  };
+  store.activities.unshift(newActivity);
+  return newActivity;
+}
+
+export function recordActivityAttempt(
+  studentId: string,
+  activityId: string,
+  response: string,
+  aiFeedback: string,
+  score: number
+): { attempt: ActivityAttempt; xpAwarded: number; newTotalXp: number; newLevel: number; unlockedBadge?: string } {
+  const store = getMockStore();
+  const activity = store.activities.find((a) => a.id === activityId);
+  const xpAwarded = activity?.xp || 75;
+
+  const attempt: ActivityAttempt = {
+    id: `att-${Date.now()}`,
+    student_id: studentId,
+    activity_id: activityId,
+    response,
+    ai_feedback: aiFeedback,
+    score,
+    duration_seconds: 120,
+    completed_at: new Date().toISOString(),
+  };
+
+  store.activityAttempts.unshift(attempt);
+
+  // Update Gamification
+  const gam = store.gamification[studentId] || {
+    student_id: studentId,
+    xp: 350,
+    level: 2,
+    current_streak: 5,
+    longest_streak: 7,
+    streak_freeze_available: true,
+    badges: ['first_goal'],
+  };
+
+  gam.xp += xpAwarded;
+
+  // Level thresholds: L1: 0-250, L2: 251-500, L3: 501-800, L4: 801-1200, L5: 1201+
+  let newLevel = 1;
+  if (gam.xp >= 1201) newLevel = 5;
+  else if (gam.xp >= 801) newLevel = 4;
+  else if (gam.xp >= 501) newLevel = 3;
+  else if (gam.xp >= 251) newLevel = 2;
+  gam.level = newLevel;
+
+  // Check badge unlock
+  let unlockedBadge: string | undefined;
+  if (store.activityAttempts.filter((a) => a.student_id === studentId).length >= 1 && !gam.badges.includes('first_activity')) {
+    gam.badges.push('first_activity');
+    unlockedBadge = 'first_activity';
+  }
+
+  // Update competency score
+  if (activity) {
+    const existingScore = store.competencyScores.find(
+      (s) => s.student_id === studentId && s.competency === activity.competency
+    );
+    if (existingScore) {
+      existingScore.score = Math.min(5.0, Number((existingScore.score * 0.7 + score * 0.3).toFixed(1)));
+      existingScore.source = 'ai';
+      existingScore.evidence = `Demonstrated in activity: ${activity.title}`;
+    } else {
+      store.competencyScores.push({
+        id: `cs-${Date.now()}`,
+        student_id: studentId,
+        competency: activity.competency,
+        score,
+        source: 'ai',
+        evidence: `Demonstrated in activity: ${activity.title}`,
+        created_at: new Date().toISOString(),
+      });
+    }
+  }
+
+  return {
+    attempt,
+    xpAwarded,
+    newTotalXp: gam.xp,
+    newLevel: gam.level,
+    unlockedBadge,
+  };
+}
+
+export function toggleStreakFreeze(studentId: string): boolean {
+  const store = getMockStore();
+  const gam = store.gamification[studentId];
+  if (!gam) return false;
+  gam.streak_freeze_available = !gam.streak_freeze_available;
+  return gam.streak_freeze_available;
+}
+
+export function toggleResourceBookmark(studentId: string, resourceId: string): boolean {
+  const store = getMockStore();
+  if (!store.bookmarkedResources[studentId]) {
+    store.bookmarkedResources[studentId] = [];
+  }
+  const list = store.bookmarkedResources[studentId];
+  const idx = list.indexOf(resourceId);
+  if (idx !== -1) {
+    list.splice(idx, 1);
+    return false;
+  } else {
+    list.push(resourceId);
+    return true;
+  }
+}
+
+export function completeResource(studentId: string, resourceId: string): { success: boolean; xpEarned: number } {
+  const store = getMockStore();
+  if (!store.completedResources[studentId]) {
+    store.completedResources[studentId] = [];
+  }
+  const list = store.completedResources[studentId];
+  if (list.includes(resourceId)) {
+    return { success: false, xpEarned: 0 };
+  }
+
+  list.push(resourceId);
+
+  // Award +25 XP
+  const gam = store.gamification[studentId];
+  if (gam) {
+    gam.xp += 25;
+  }
+
+  return { success: true, xpEarned: 25 };
+}
+
+export function addAIFlag(flag: Omit<AIFlag, 'id' | 'created_at'>): AIFlag {
+  const store = getMockStore();
+  const newFlag: AIFlag = {
+    ...flag,
+    id: `flag-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+    created_at: new Date().toISOString(),
+  };
+  store.aiFlags.unshift(newFlag);
+  return newFlag;
+}
+
 
 
 
