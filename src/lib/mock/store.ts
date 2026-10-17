@@ -719,3 +719,178 @@ export function updateStudentProfile(
   return store.students[index];
 }
 
+export function reviewSubmission(
+  submissionId: string,
+  reviewData: {
+    mentorId: string;
+    feedback: string;
+    grade?: string;
+    rating?: number;
+    competencyRatings?: Record<string, number>;
+  }
+): { submission: Submission; review: Review; task: Task } | null {
+  const store = getMockStore();
+  const subIndex = store.submissions.findIndex((s) => s.id === submissionId);
+  if (subIndex === -1) return null;
+
+  const sub = store.submissions[subIndex];
+  const taskIndex = store.tasks.findIndex((t) => t.id === sub.task_id);
+  if (taskIndex === -1) return null;
+
+  const revId = `rev-${Date.now()}`;
+  const mentor = store.mentors.find((m) => m.id === reviewData.mentorId) || store.mentors[0];
+
+  const newReview: Review = {
+    id: revId,
+    submission_id: submissionId,
+    mentor_id: reviewData.mentorId,
+    feedback: reviewData.feedback,
+    grade: reviewData.grade || 'A',
+    rating: reviewData.rating || 5,
+    competency_ratings: reviewData.competencyRatings || {},
+    reviewed_at: new Date().toISOString(),
+    mentor,
+  };
+
+  store.reviews.unshift(newReview);
+  store.submissions[subIndex].review = newReview;
+  store.tasks[taskIndex].status = 'reviewed';
+  store.tasks[taskIndex].submission = store.submissions[subIndex];
+
+  // Write/Update competency scores with source: 'mentor'
+  const studentId = store.tasks[taskIndex].student_id;
+  if (reviewData.competencyRatings) {
+    Object.entries(reviewData.competencyRatings).forEach(([compKey, score]) => {
+      const existingScore = store.competencyScores.find(
+        (cs) => cs.student_id === studentId && cs.competency === compKey && cs.source === 'mentor'
+      );
+      if (existingScore) {
+        existingScore.score = score;
+        existingScore.evidence = reviewData.feedback.slice(0, 100);
+      } else {
+        store.competencyScores.push({
+          id: `cs-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+          student_id: studentId,
+          competency: compKey as CompetencyKey,
+          score,
+          source: 'mentor',
+          evidence: reviewData.feedback.slice(0, 100),
+          created_at: new Date().toISOString(),
+        });
+      }
+    });
+  }
+
+  // Award XP to student for receiving a review
+  if (store.gamification[studentId]) {
+    store.gamification[studentId].xp += 100;
+  }
+
+  return {
+    submission: store.submissions[subIndex],
+    review: newReview,
+    task: store.tasks[taskIndex],
+  };
+}
+
+export function addStudent(newStudentData: Omit<Student, 'id' | 'created_at'>): Student {
+  const store = getMockStore();
+  const studentId = `student-${store.students.length + 1}`;
+  const profileId = `profile-${studentId}`;
+
+  const newProfile: Profile = {
+    id: profileId,
+    role: 'student',
+    full_name: newStudentData.name,
+    email: newStudentData.email,
+    phone: newStudentData.phone,
+    photo_url: `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(newStudentData.name)}`,
+    created_at: new Date().toISOString(),
+  };
+  store.profiles.push(newProfile);
+
+  const fullStudent: Student = {
+    ...newStudentData,
+    id: studentId,
+    profile_id: profileId,
+    status: 'active',
+    created_at: new Date().toISOString(),
+    profile: newProfile,
+    primary_mentor: store.mentors.find((m) => m.id === newStudentData.primary_mentor_id) || store.mentors[0],
+  };
+
+  store.students.unshift(fullStudent);
+
+  // Initialize gamification
+  store.gamification[studentId] = {
+    student_id: studentId,
+    xp: 100,
+    level: 1,
+    current_streak: 1,
+    longest_streak: 1,
+    last_active_date: new Date().toISOString().split('T')[0],
+    streak_freeze_available: true,
+    badges: ['first_goal'],
+  };
+
+  // Initialize vision board
+  store.visionBoards.push({
+    id: `vb-${Date.now()}`,
+    student_id: studentId,
+    image_url: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1200&q=80',
+    updated_at: new Date().toISOString(),
+  });
+
+  return fullStudent;
+}
+
+export function addMentorNote(note: Omit<MentorNote, 'id' | 'created_at'>): MentorNote {
+  const store = getMockStore();
+  const newNote: MentorNote = {
+    ...note,
+    id: `mn-${Date.now()}`,
+    created_at: new Date().toISOString(),
+  };
+  store.mentorNotes.unshift(newNote);
+  return newNote;
+}
+
+export function updateAIFlag(
+  flagId: string,
+  status: 'open' | 'acknowledged' | 'resolved',
+  handledBy?: string
+): AIFlag | null {
+  const store = getMockStore();
+  const index = store.aiFlags.findIndex((f) => f.id === flagId);
+  if (index === -1) return null;
+  store.aiFlags[index].status = status;
+  if (handledBy) {
+    store.aiFlags[index].handled_by = handledBy;
+  }
+  return store.aiFlags[index];
+}
+
+export function updateMentorProfile(
+  mentorId: string,
+  updates: { full_name?: string; email?: string; phone?: string; designation?: string; organization?: string; photo_url?: string }
+): Mentor | null {
+  const store = getMockStore();
+  const mentorIndex = store.mentors.findIndex((m) => m.id === mentorId);
+  if (mentorIndex === -1) return null;
+
+  if (updates.designation) store.mentors[mentorIndex].designation = updates.designation;
+  if (updates.organization) store.mentors[mentorIndex].organization = updates.organization;
+
+  const profileIndex = store.profiles.findIndex((p) => p.id === store.mentors[mentorIndex].profile_id);
+  if (profileIndex !== -1) {
+    if (updates.full_name) store.profiles[profileIndex].full_name = updates.full_name;
+    if (updates.email) store.profiles[profileIndex].email = updates.email;
+    if (updates.phone) store.profiles[profileIndex].phone = updates.phone;
+    if (updates.photo_url) store.profiles[profileIndex].photo_url = updates.photo_url;
+    store.mentors[mentorIndex].profile = store.profiles[profileIndex];
+  }
+
+  return store.mentors[mentorIndex];
+}
+
+

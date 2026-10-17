@@ -17,6 +17,7 @@ import {
   ShieldAlert,
   GraduationCap,
   Sparkles,
+  UserCircle,
 } from 'lucide-react';
 
 const mentorNavItems = [
@@ -25,6 +26,7 @@ const mentorNavItems = [
   { href: '/mentor/review', label: 'Review Submissions', icon: CheckSquare },
   { href: '/mentor/alerts', label: 'Support Alerts', icon: ShieldAlert },
   { href: '/mentor/add-student', label: 'Add Scholar', icon: UserPlus },
+  { href: '/mentor/profile', label: 'My Profile', icon: UserCircle },
 ];
 
 export default function MentorLayout({ children }: { children: React.ReactNode }) {
@@ -81,7 +83,7 @@ export default function MentorLayout({ children }: { children: React.ReactNode }
         {/* Sidebar Footer: Mentor Info, ThemeToggle, Sign Out */}
         <div className="p-4 border-t border-border bg-surface-raised/40 space-y-3">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2.5 min-w-0">
+            <a href="/mentor/profile" className="flex items-center gap-2.5 min-w-0 hover:opacity-80 transition-opacity">
               <div className="w-9 h-9 rounded-full bg-sky-500/20 text-sky-500 font-bold text-xs flex items-center justify-center border border-sky-500/30 shrink-0">
                 RM
               </div>
@@ -89,7 +91,7 @@ export default function MentorLayout({ children }: { children: React.ReactNode }
                 <p className="text-xs font-bold text-foreground truncate">{user?.full_name || 'Ramkumar SKR'}</p>
                 <p className="text-[10px] text-muted truncate">{user?.email || 'ramkumar.skr01@gmail.com'}</p>
               </div>
-            </div>
+            </a>
             <ThemeToggle />
           </div>
 

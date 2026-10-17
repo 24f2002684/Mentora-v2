@@ -211,7 +211,7 @@ export default function MentorDashboard() {
                   </td>
                   <td className="px-4 py-3 text-right">
                     <a
-                      href={`/mentor/students`}
+                      href={`/mentor/students/${s.id}`}
                       className="text-xs font-bold text-primary hover:underline"
                     >
                       Profile & Tasks →
