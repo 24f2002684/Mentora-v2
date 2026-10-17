@@ -619,3 +619,103 @@ export function resetMockStore(): MockDataStore {
   storeInstance = initializeStore();
   return storeInstance;
 }
+
+// Store Mutation Operations
+export function addGoal(goal: Omit<Goal, 'id' | 'created_at'>): Goal {
+  const store = getMockStore();
+  const newGoal: Goal = {
+    ...goal,
+    id: `goal-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+    created_at: new Date().toISOString(),
+  };
+  store.goals.unshift(newGoal);
+  return newGoal;
+}
+
+export function updateGoal(id: string, updates: Partial<Goal>): Goal | null {
+  const store = getMockStore();
+  const index = store.goals.findIndex((g) => g.id === id);
+  if (index === -1) return null;
+  store.goals[index] = { ...store.goals[index], ...updates };
+  return store.goals[index];
+}
+
+export function deleteGoal(id: string): boolean {
+  const store = getMockStore();
+  const index = store.goals.findIndex((g) => g.id === id);
+  if (index === -1) return false;
+  store.goals.splice(index, 1);
+  return true;
+}
+
+export function updateVisionBoard(studentId: string, imageUrl: string): VisionBoard {
+  const store = getMockStore();
+  const index = store.visionBoards.findIndex((vb) => vb.student_id === studentId);
+  if (index !== -1) {
+    store.visionBoards[index].image_url = imageUrl;
+    store.visionBoards[index].updated_at = new Date().toISOString();
+    return store.visionBoards[index];
+  }
+  const newVb: VisionBoard = {
+    id: `vb-${Date.now()}`,
+    student_id: studentId,
+    image_url: imageUrl,
+    updated_at: new Date().toISOString(),
+  };
+  store.visionBoards.push(newVb);
+  return newVb;
+}
+
+export function addTask(task: Omit<Task, 'id' | 'created_at'>): Task {
+  const store = getMockStore();
+  const newTask: Task = {
+    ...task,
+    id: `task-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+    created_at: new Date().toISOString(),
+  };
+  store.tasks.unshift(newTask);
+  return newTask;
+}
+
+export function submitTask(
+  taskId: string,
+  submissionData: { remarks?: string; reflection: string; attachment_url?: string }
+): { task: Task; submission: Submission } | null {
+  const store = getMockStore();
+  const taskIndex = store.tasks.findIndex((t) => t.id === taskId);
+  if (taskIndex === -1) return null;
+
+  const subId = `sub-${Date.now()}`;
+  const newSubmission: Submission = {
+    id: subId,
+    task_id: taskId,
+    remarks: submissionData.remarks,
+    reflection: submissionData.reflection,
+    attachment_url: submissionData.attachment_url,
+    submitted_at: new Date().toISOString(),
+  };
+
+  store.submissions.unshift(newSubmission);
+  store.tasks[taskIndex].status = 'submitted';
+  store.tasks[taskIndex].submission = newSubmission;
+
+  // Award XP for submitting
+  const studentId = store.tasks[taskIndex].student_id;
+  if (store.gamification[studentId]) {
+    store.gamification[studentId].xp += 50;
+  }
+
+  return { task: store.tasks[taskIndex], submission: newSubmission };
+}
+
+export function updateStudentProfile(
+  studentId: string,
+  updates: Partial<Student>
+): Student | null {
+  const store = getMockStore();
+  const index = store.students.findIndex((s) => s.id === studentId);
+  if (index === -1) return null;
+  store.students[index] = { ...store.students[index], ...updates };
+  return store.students[index];
+}
+
