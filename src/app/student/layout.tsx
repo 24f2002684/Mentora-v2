@@ -7,6 +7,7 @@ import Image from 'next/image';
 import { useAuth } from '@/lib/auth/context';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { DemoRoleSwitcher } from '@/components/demo-role-switcher';
+import { NotificationDropdown } from '@/components/notification-dropdown';
 import {
   Home,
   Target,
@@ -96,6 +97,7 @@ export default function StudentLayout({ children }: { children: React.ReactNode 
               <span>385 XP</span>
             </div>
 
+            <NotificationDropdown />
             <ThemeToggle />
 
             {/* Profile Dropdown / Sign out */}

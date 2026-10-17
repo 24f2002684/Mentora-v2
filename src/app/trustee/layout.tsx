@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 import { useAuth } from '@/lib/auth/context';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { DemoRoleSwitcher } from '@/components/demo-role-switcher';
+import { NotificationDropdown } from '@/components/notification-dropdown';
 import {
   BarChart3,
   Users,
@@ -82,7 +83,10 @@ export default function TrusteeLayout({ children }: { children: React.ReactNode 
                 <p className="text-[10px] text-muted truncate">Managing Trustee • VRCF</p>
               </div>
             </div>
-            <ThemeToggle />
+            <div className="flex items-center gap-1.5 shrink-0">
+              <NotificationDropdown />
+              <ThemeToggle />
+            </div>
           </div>
 
           <button
@@ -109,6 +113,7 @@ export default function TrusteeLayout({ children }: { children: React.ReactNode 
             </div>
           </a>
           <div className="flex items-center gap-2">
+            <NotificationDropdown />
             <ThemeToggle />
             <button
               type="button"

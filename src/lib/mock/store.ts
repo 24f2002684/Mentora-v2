@@ -20,6 +20,7 @@ import {
   TrusteeFeedback,
   MentorNote,
   NotificationItem,
+  AuditLogItem,
 } from '../types/database';
 import { CompetencyKey } from '../types/competencies';
 
@@ -46,6 +47,7 @@ export interface MockDataStore {
   trusteeFeedback: TrusteeFeedback[];
   mentorNotes: MentorNote[];
   notifications: NotificationItem[];
+  auditLogs: AuditLogItem[];
 }
 
 function initializeStore(): MockDataStore {
@@ -564,7 +566,7 @@ function initializeStore(): MockDataStore {
     },
   ];
 
-  // Notifications
+  // Notifications for all user personas
   const notifications: NotificationItem[] = [
     {
       id: 'notif-1',
@@ -578,11 +580,129 @@ function initializeStore(): MockDataStore {
     {
       id: 'notif-2',
       user_id: 'profile-student-1',
-      title: 'Feedback from VRCF Trustee',
+      title: 'Encouraging Note from VRCF Trustee',
       body: 'Smt. Shanthi Ramaswami sent an encouraging note regarding your leadership progress.',
       link: '/student/progress',
       read: true,
       created_at: new Date(Date.now() - 3 * 86400000).toISOString(),
+    },
+    {
+      id: 'notif-3',
+      user_id: 'mentor-ramkumar',
+      title: 'New Task Submission to Review',
+      body: 'Lakshana S submitted reflection for "First Principles Analysis of Core Subject Syllabus".',
+      link: '/mentor/review',
+      read: false,
+      created_at: new Date(Date.now() - 2 * 3600000).toISOString(),
+    },
+    {
+      id: 'notif-4',
+      user_id: 'mentor-ramkumar',
+      title: 'AI Support Check Acknowledged',
+      body: 'Support case for Priya Dharshini has been marked acknowledged.',
+      link: '/mentor/alerts',
+      read: true,
+      created_at: new Date(Date.now() - 24 * 3600000).toISOString(),
+    },
+    {
+      id: 'notif-5',
+      user_id: 'trustee-shanthi',
+      title: 'Monthly Cohort Engagement Ready',
+      body: 'Cohort 1, 2, and 3 have completed 94% of scheduled developmental milestones this month.',
+      link: '/trustee/analytics',
+      read: false,
+      created_at: new Date(Date.now() - 6 * 3600000).toISOString(),
+    },
+    {
+      id: 'notif-6',
+      user_id: 'trustee-shanthi',
+      title: 'Trustee Encouragement Delivered',
+      body: 'Your leadership feedback was received by Lakshana S (Cohort 1).',
+      link: '/trustee/students',
+      read: true,
+      created_at: new Date(Date.now() - 48 * 3600000).toISOString(),
+    },
+    {
+      id: 'notif-7',
+      user_id: 'admin-suhail',
+      title: 'Platform Integrity Verified',
+      body: '42 scholars loaded with active Row Level Security policies and mentor allocations.',
+      link: '/admin/students',
+      read: false,
+      created_at: new Date(Date.now() - 1 * 3600000).toISOString(),
+    },
+    {
+      id: 'notif-8',
+      user_id: 'admin-suhail',
+      title: 'DPDP Compliance Audit Clean',
+      body: 'All active scholars verified against Indian Digital Personal Data Protection guidelines.',
+      link: '/admin/audit',
+      read: true,
+      created_at: new Date(Date.now() - 36 * 3600000).toISOString(),
+    },
+  ];
+
+  // Audit Logs
+  const auditLogs: AuditLogItem[] = [
+    {
+      id: 'aud-1',
+      actor_name: 'System Engine',
+      actor_role: 'system',
+      action: 'SEED_INITIALIZATION',
+      entity: 'Database',
+      entity_id: 'students_42',
+      details: 'Imported 42 scholars from Student_DB.xlsx with strict schema verification and cohort mapping',
+      created_at: new Date(Date.now() - 7 * 86400000).toISOString(),
+    },
+    {
+      id: 'aud-2',
+      actor_name: 'Lakshana S',
+      actor_role: 'student',
+      action: 'DPDP_CONSENT_GRANTED',
+      entity: 'Profile',
+      entity_id: 'student-1',
+      details: 'Scholar confirmed Digital Personal Data Protection Act compliance and parental communication consent',
+      created_at: new Date(Date.now() - 5 * 86400000).toISOString(),
+    },
+    {
+      id: 'aud-3',
+      actor_name: 'Ramkumar SKR',
+      actor_role: 'mentor',
+      action: 'TASK_EVALUATION',
+      entity: 'Submission',
+      entity_id: 'sub-1',
+      details: 'Evaluated submission with Grade A+, awarded 5 stars and updated competencies',
+      created_at: new Date(Date.now() - 4 * 86400000).toISOString(),
+    },
+    {
+      id: 'aud-4',
+      actor_name: 'Smt. Shanthi Ramaswami',
+      actor_role: 'trustee',
+      action: 'DISPATCH_FEEDBACK',
+      entity: 'Student',
+      entity_id: 'student-1',
+      details: 'Sent trustee encouragement message praising dedication and leadership to Lakshana S',
+      created_at: new Date(Date.now() - 3 * 86400000).toISOString(),
+    },
+    {
+      id: 'aud-5',
+      actor_name: 'Ramkumar SKR',
+      actor_role: 'mentor',
+      action: 'SUPPORT_FLAG_ACK',
+      entity: 'AIFlag',
+      entity_id: 'flag-2',
+      details: 'Acknowledged student stress support flag and scheduled 1:1 check-in',
+      created_at: new Date(Date.now() - 2 * 86400000).toISOString(),
+    },
+    {
+      id: 'aud-6',
+      actor_name: 'Suhail Akthar',
+      actor_role: 'admin',
+      action: 'ROSTER_AUDIT',
+      entity: 'Scholars',
+      entity_id: 'all_42',
+      details: 'Exported official VRCF scholar roster CSV with fee tracking and mentor links',
+      created_at: new Date(Date.now() - 1 * 86400000).toISOString(),
     },
   ];
 
@@ -696,6 +816,7 @@ function initializeStore(): MockDataStore {
     trusteeFeedback,
     mentorNotes,
     notifications,
+    auditLogs,
   };
 }
 
@@ -1239,6 +1360,267 @@ export function addAIFlag(flag: Omit<AIFlag, 'id' | 'created_at'>): AIFlag {
   };
   store.aiFlags.unshift(newFlag);
   return newFlag;
+}
+
+// -------------------------------------------------------------
+// NOTIFICATIONS & TRUSTEE FEEDBACK HELPERS (Phase 6)
+// -------------------------------------------------------------
+
+export function sendTrusteeFeedback(params: {
+  studentId: string;
+  trusteeId?: string;
+  trusteeName: string;
+  message: string;
+}): TrusteeFeedback {
+  const store = getMockStore();
+  const student = store.students.find((s) => s.id === params.studentId);
+  const trustee = store.trustees.find((t) => t.id === params.trusteeId) || store.trustees[0];
+
+  const feedback: TrusteeFeedback = {
+    id: `tf-${Date.now()}`,
+    student_id: params.studentId,
+    trustee_id: trustee?.id || 'trustee-rec-1',
+    message: params.message.trim(),
+    created_at: new Date().toISOString(),
+    trustee,
+  };
+  store.trusteeFeedback.unshift(feedback);
+
+  // Send instant in-app notification to student
+  const targetUserId = student?.profile_id || `profile-${params.studentId}`;
+  store.notifications.unshift({
+    id: `notif-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+    user_id: targetUserId,
+    title: 'Encouraging Note from VRCF Trustee',
+    body: `${params.trusteeName}: "${params.message.slice(0, 90)}${params.message.length > 90 ? '...' : ''}"`,
+    link: '/student/progress',
+    read: false,
+    created_at: new Date().toISOString(),
+  });
+
+  // Record compliance audit log
+  addAuditLog({
+    actor_name: params.trusteeName,
+    actor_role: 'trustee',
+    action: 'DISPATCH_FEEDBACK',
+    entity: 'Student',
+    entity_id: params.studentId,
+    details: `Dispatched trustee encouragement note to ${student?.name || 'scholar'} (Cohort ${student?.cohort || 1})`,
+  });
+
+  return feedback;
+}
+
+export function getUserNotifications(userId?: string): NotificationItem[] {
+  const store = getMockStore();
+  if (!userId) {
+    return [...store.notifications].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+  }
+  return store.notifications
+    .filter((n) => n.user_id === userId)
+    .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+}
+
+export function markNotificationRead(notificationId: string): boolean {
+  const store = getMockStore();
+  const notif = store.notifications.find((n) => n.id === notificationId);
+  if (!notif) return false;
+  notif.read = true;
+  return true;
+}
+
+export function markAllNotificationsRead(userId?: string): boolean {
+  const store = getMockStore();
+  let updated = false;
+  store.notifications.forEach((n) => {
+    if (!userId || n.user_id === userId) {
+      n.read = true;
+      updated = true;
+    }
+  });
+  return updated;
+}
+
+export function addNotification(notif: Omit<NotificationItem, 'id' | 'created_at' | 'read'>): NotificationItem {
+  const store = getMockStore();
+  const newNotif: NotificationItem = {
+    ...notif,
+    id: `notif-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+    read: false,
+    created_at: new Date().toISOString(),
+  };
+  store.notifications.unshift(newNotif);
+  return newNotif;
+}
+
+// -------------------------------------------------------------
+// AUDIT & ROSTER MANAGEMENT HELPERS (Phase 6)
+// -------------------------------------------------------------
+
+export function addAuditLog(entry: Omit<AuditLogItem, 'id' | 'created_at'>): AuditLogItem {
+  const store = getMockStore();
+  const log: AuditLogItem = {
+    ...entry,
+    id: `aud-${Date.now()}-${Math.random().toString(36).substring(2, 5)}`,
+    created_at: new Date().toISOString(),
+  };
+  store.auditLogs.unshift(log);
+  return log;
+}
+
+export function getAuditLogs(): AuditLogItem[] {
+  const store = getMockStore();
+  return [...store.auditLogs].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+}
+
+export function updateStudent(studentId: string, updates: Partial<Student>): Student | null {
+  const store = getMockStore();
+  const idx = store.students.findIndex((s) => s.id === studentId);
+  if (idx === -1) return null;
+
+  store.students[idx] = {
+    ...store.students[idx],
+    ...updates,
+  };
+
+  // Re-link primary mentor if changed
+  if (updates.primary_mentor_id) {
+    store.students[idx].primary_mentor = store.mentors.find((m) => m.id === updates.primary_mentor_id) || null;
+  }
+
+  addAuditLog({
+    actor_name: 'Administrator',
+    actor_role: 'admin',
+    action: 'UPDATE_SCHOLAR',
+    entity: 'Student',
+    entity_id: studentId,
+    details: `Updated scholar record for ${store.students[idx].name} (${store.students[idx].vrcf_id})`,
+  });
+
+  return store.students[idx];
+}
+
+export function updateStudentStatus(studentId: string, status: 'active' | 'graduated' | 'inactive'): Student | null {
+  const store = getMockStore();
+  const idx = store.students.findIndex((s) => s.id === studentId);
+  if (idx === -1) return null;
+
+  const prevStatus = store.students[idx].status;
+  store.students[idx].status = status;
+
+  addAuditLog({
+    actor_name: 'Administrator',
+    actor_role: 'admin',
+    action: 'STATUS_CHANGE',
+    entity: 'Student',
+    entity_id: studentId,
+    details: `Changed status of ${store.students[idx].name} from ${prevStatus} to ${status}`,
+  });
+
+  return store.students[idx];
+}
+
+export function addMentorMember(params: {
+  full_name: string;
+  email: string;
+  phone?: string;
+  organization: string;
+  designation: string;
+}): Mentor {
+  const store = getMockStore();
+  const profileId = `mentor-profile-${Date.now()}`;
+  const mentorId = `mentor-rec-${Date.now()}`;
+
+  const profile: Profile = {
+    id: profileId,
+    role: 'mentor',
+    full_name: params.full_name,
+    email: params.email,
+    phone: params.phone || '+91 9443200000',
+    created_at: new Date().toISOString(),
+  };
+  store.profiles.push(profile);
+
+  const mentor: Mentor = {
+    id: mentorId,
+    profile_id: profileId,
+    organization: params.organization,
+    designation: params.designation,
+    created_at: new Date().toISOString(),
+    profile,
+  };
+  store.mentors.push(mentor);
+
+  addAuditLog({
+    actor_name: 'Administrator',
+    actor_role: 'admin',
+    action: 'ADD_MENTOR',
+    entity: 'Mentor',
+    entity_id: mentorId,
+    details: `Added new foundation mentor: ${params.full_name} (${params.organization})`,
+  });
+
+  return mentor;
+}
+
+export function addTrusteeMember(params: {
+  full_name: string;
+  email: string;
+  phone?: string;
+}): Trustee {
+  const store = getMockStore();
+  const profileId = `trustee-profile-${Date.now()}`;
+  const trusteeId = `trustee-rec-${Date.now()}`;
+
+  const profile: Profile = {
+    id: profileId,
+    role: 'trustee',
+    full_name: params.full_name,
+    email: params.email,
+    phone: params.phone || '+91 9884000000',
+    created_at: new Date().toISOString(),
+  };
+  store.profiles.push(profile);
+
+  const trustee: Trustee = {
+    id: trusteeId,
+    profile_id: profileId,
+    created_at: new Date().toISOString(),
+    profile,
+  };
+  store.trustees.push(trustee);
+
+  addAuditLog({
+    actor_name: 'Administrator',
+    actor_role: 'admin',
+    action: 'ADD_TRUSTEE',
+    entity: 'Trustee',
+    entity_id: trusteeId,
+    details: `Appointed new VRCF trustee: ${params.full_name}`,
+  });
+
+  return trustee;
+}
+
+export function addCuratedResource(resource: Omit<Resource, 'id' | 'created_at'>): Resource {
+  const store = getMockStore();
+  const newRes: Resource = {
+    ...resource,
+    id: `res-${Date.now()}`,
+    created_at: new Date().toISOString(),
+  };
+  store.resources.unshift(newRes);
+
+  addAuditLog({
+    actor_name: 'Administrator',
+    actor_role: 'admin',
+    action: 'ADD_RESOURCE',
+    entity: 'Resource',
+    entity_id: newRes.id,
+    details: `Added curated learning resource: ${newRes.title} (${newRes.type})`,
+  });
+
+  return newRes;
 }
 
 

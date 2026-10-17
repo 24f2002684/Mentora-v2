@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 import { useAuth } from '@/lib/auth/context';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { DemoRoleSwitcher } from '@/components/demo-role-switcher';
+import { NotificationDropdown } from '@/components/notification-dropdown';
 import {
   Users,
   CheckSquare,
@@ -92,7 +93,10 @@ export default function MentorLayout({ children }: { children: React.ReactNode }
                 <p className="text-[10px] text-muted truncate">{user?.email || 'ramkumar.skr01@gmail.com'}</p>
               </div>
             </a>
-            <ThemeToggle />
+            <div className="flex items-center gap-1.5 shrink-0">
+              <NotificationDropdown />
+              <ThemeToggle />
+            </div>
           </div>
 
           <button
@@ -120,6 +124,7 @@ export default function MentorLayout({ children }: { children: React.ReactNode }
             </div>
           </a>
           <div className="flex items-center gap-2">
+            <NotificationDropdown />
             <ThemeToggle />
             <button
               type="button"

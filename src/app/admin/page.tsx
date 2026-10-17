@@ -130,43 +130,71 @@ export default function AdminDashboard() {
 
           <div className="space-y-2 pt-2">
             <a
+              href="/admin/students"
+              className="flex items-center justify-between p-3.5 rounded-[14px] border border-border hover:border-primary/50 hover:bg-surface-tint transition-all"
+            >
+              <div className="flex items-center gap-3">
+                <GraduationCap className="w-4 h-4 text-rose-500" />
+                <span className="text-sm font-semibold text-foreground">Scholar Roster & Fee Manager</span>
+              </div>
+              <ArrowRight className="w-4 h-4 text-muted" />
+            </a>
+
+            <a
+              href="/admin/team"
+              className="flex items-center justify-between p-3.5 rounded-[14px] border border-border hover:border-sky-500/50 hover:bg-surface-tint transition-all"
+            >
+              <div className="flex items-center gap-3">
+                <Shield className="w-4 h-4 text-sky-500" />
+                <span className="text-sm font-semibold text-foreground">Manage Mentors & Trustees</span>
+              </div>
+              <ArrowRight className="w-4 h-4 text-muted" />
+            </a>
+
+            <a
               href="/mentor/add-student"
               className="flex items-center justify-between p-3.5 rounded-[14px] border border-border hover:border-primary/50 hover:bg-surface-tint transition-all"
             >
               <div className="flex items-center gap-3">
                 <UserPlus className="w-4 h-4 text-primary" />
-                <span className="text-sm font-semibold text-foreground">Add New VRCF Scholar</span>
+                <span className="text-sm font-semibold text-foreground">Enroll New Scholar</span>
               </div>
               <ArrowRight className="w-4 h-4 text-muted" />
             </a>
-
-            <div className="flex items-center justify-between p-3.5 rounded-[14px] border border-border/60 bg-muted-bg/30">
-              <div className="flex items-center gap-3">
-                <Shield className="w-4 h-4 text-sky-500" />
-                <span className="text-sm font-semibold text-foreground">Manage Mentors (3 active)</span>
-              </div>
-              <span className="text-xs text-muted font-medium">Configure</span>
-            </div>
           </div>
         </section>
 
         <section className="mentora-card p-6 space-y-4">
           <h2 className="font-bold text-lg text-foreground flex items-center gap-2">
             <Database className="w-5 h-5 text-amber-brand" />
-            Content & Database Hygiene
+            Content, Curriculum & Compliance
           </h2>
           <p className="text-sm text-muted">
-            Oversee the 10 core competencies rubric, curated resources library, and AI daily challenges.
+            Oversee the 10 core competencies rubric, curated resources library, and immutable DPDP audit trail.
           </p>
 
           <div className="space-y-2 pt-2">
-            <div className="flex items-center justify-between p-3.5 rounded-[14px] border border-border/60 bg-muted-bg/30">
+            <a
+              href="/admin/content"
+              className="flex items-center justify-between p-3.5 rounded-[14px] border border-border hover:border-amber-brand/50 hover:bg-surface-tint transition-all"
+            >
               <div className="flex items-center gap-3">
                 <BookOpen className="w-4 h-4 text-amber-brand" />
-                <span className="text-sm font-semibold text-foreground">Curated Resources ({store.resources.length})</span>
+                <span className="text-sm font-semibold text-foreground">Curriculum & Resources ({store.resources.length})</span>
               </div>
-              <span className="text-xs text-muted font-medium">Active</span>
-            </div>
+              <ArrowRight className="w-4 h-4 text-muted" />
+            </a>
+
+            <a
+              href="/admin/audit"
+              className="flex items-center justify-between p-3.5 rounded-[14px] border border-border hover:border-emerald-brand/50 hover:bg-surface-tint transition-all"
+            >
+              <div className="flex items-center gap-3">
+                <Shield className="w-4 h-4 text-emerald-brand" />
+                <span className="text-sm font-semibold text-foreground">Governance & Audit Log</span>
+              </div>
+              <ArrowRight className="w-4 h-4 text-muted" />
+            </a>
 
             <a
               href="/design-system"
@@ -174,7 +202,7 @@ export default function AdminDashboard() {
             >
               <div className="flex items-center gap-3">
                 <Palette className="w-4 h-4 text-primary" />
-                <span className="text-sm font-semibold text-foreground">Open Design System Showcase</span>
+                <span className="text-sm font-semibold text-foreground">Design System Showcase</span>
               </div>
               <ArrowRight className="w-4 h-4 text-muted" />
             </a>

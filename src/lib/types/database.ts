@@ -237,3 +237,14 @@ export interface Gamification {
   streak_freeze_available: boolean;
   badges: string[];
 }
+
+export interface AuditLogItem {
+  id: string;
+  actor_name: string;
+  actor_role: UserRole | 'system';
+  action: string;
+  entity: string;
+  entity_id?: string | null;
+  details?: string | null;
+  created_at: string;
+}

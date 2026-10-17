@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 import { useAuth } from '@/lib/auth/context';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { DemoRoleSwitcher } from '@/components/demo-role-switcher';
+import { NotificationDropdown } from '@/components/notification-dropdown';
 import {
   Shield,
   Users,
@@ -78,6 +79,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
           {/* Right Header items */}
           <div className="flex items-center gap-2 sm:gap-3">
+            <NotificationDropdown />
             <ThemeToggle />
 
             <div className="flex items-center gap-2 pl-2 border-l border-border">
