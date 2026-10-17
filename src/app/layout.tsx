@@ -4,6 +4,7 @@ import React, { Suspense } from "react";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { AuthProvider } from "@/lib/auth/context";
+import { PwaBanner } from "@/components/pwa-banner";
 
 const manrope = Manrope({
   subsets: ["latin"],
@@ -47,6 +48,7 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
+          <PwaBanner />
           <Suspense fallback={null}>
             <AuthProvider>{children}</AuthProvider>
           </Suspense>

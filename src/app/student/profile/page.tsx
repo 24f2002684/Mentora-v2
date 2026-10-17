@@ -21,6 +21,9 @@ import {
   DollarSign,
   AlertCircle,
   Camera,
+  Smartphone,
+  Download,
+  WifiOff,
 } from 'lucide-react';
 
 export default function StudentProfilePage() {
@@ -249,6 +252,39 @@ export default function StudentProfilePage() {
             <p className="text-xs text-muted leading-relaxed pt-2 border-t border-border/50">
               Your mentor conducts monthly reviews, provides written evaluation on assignments, and guides your leadership development.
             </p>
+          </div>
+        </div>
+
+        {/* Mobile PWA & Offline Support Card */}
+        <div className="mentora-card p-6 space-y-4">
+          <div className="flex items-center gap-2 border-b border-border/60 pb-3">
+            <Smartphone className="w-5 h-5 text-primary" />
+            <h2 className="font-bold text-base text-foreground">Mobile App & Offline Mode</h2>
+          </div>
+
+          <div className="space-y-3 text-sm">
+            <div className="flex items-center justify-between text-xs">
+              <span className="text-muted font-medium">PWA Status:</span>
+              <span className="mentora-badge-teal text-[10px] font-bold">Installable / Active</span>
+            </div>
+
+            <div className="flex items-center justify-between text-xs">
+              <span className="text-muted font-medium">Service Worker Cache:</span>
+              <span className="text-emerald-brand font-bold flex items-center gap-1">
+                <CheckCircle2 className="w-3.5 h-3.5" />
+                Enabled
+              </span>
+            </div>
+
+            <div className="pt-2 border-t border-border/50 flex flex-col sm:flex-row gap-2">
+              <a
+                href="/offline"
+                className="mentora-btn-secondary text-xs py-2 flex items-center justify-center gap-1.5 w-full"
+              >
+                <WifiOff className="w-3.5 h-3.5 text-amber-brand" />
+                <span>Open Offline Toolkit</span>
+              </a>
+            </div>
           </div>
         </div>
       </div>
