@@ -582,6 +582,78 @@ function initializeStore(): MockDataStore {
     },
   ];
 
+  const chatThreads: ChatThread[] = [
+    {
+      id: 'thread-1',
+      student_id: 'student-1',
+      title: 'Analytical Frameworks for Semester Projects',
+      summary: null,
+      archived: false,
+      created_at: new Date().toISOString(),
+    },
+    {
+      id: 'thread-2',
+      student_id: 'student-1',
+      title: 'Balancing Placement Prep & Foundation Tasks',
+      summary: null,
+      archived: false,
+      created_at: new Date(Date.now() - 1 * 86400000).toISOString(),
+    },
+    {
+      id: 'thread-3',
+      student_id: 'student-1',
+      title: 'Public Speaking & Seminar Presentation Confidence',
+      summary: null,
+      archived: false,
+      created_at: new Date(Date.now() - 5 * 86400000).toISOString(),
+    },
+  ];
+
+  const chatMessages: ChatMessage[] = [
+    {
+      id: 'msg-1',
+      thread_id: 'thread-1',
+      role: 'user',
+      content: 'I want to apply first-principles thinking to our database design assignment, but my team wants to copy an existing template. How should I convince them?',
+      created_at: new Date(Date.now() - 3600000).toISOString(),
+    },
+    {
+      id: 'msg-2',
+      thread_id: 'thread-1',
+      role: 'assistant',
+      content: 'You are looking to lead your team toward first-principles rigor without creating group resistance.\n\nWhat is the single biggest performance or scalability bottleneck in their chosen template that you can demonstrate with a quick two-minute benchmark?',
+      created_at: new Date(Date.now() - 3500000).toISOString(),
+    },
+    {
+      id: 'msg-3',
+      thread_id: 'thread-2',
+      role: 'user',
+      content: 'I have DSA practice every evening, but also foundation leadership tasks. I feel I am running out of energy by 9 PM.',
+      created_at: new Date(Date.now() - 86400000).toISOString(),
+    },
+    {
+      id: 'msg-4',
+      thread_id: 'thread-2',
+      role: 'assistant',
+      content: 'Balancing intensive technical problem-solving with leadership reflection is testing your cognitive stamina.\n\nIf you protected your sharpest 45 minutes in the morning for deep work, which of these two priorities would yield the highest compounding return for you today?',
+      created_at: new Date(Date.now() - 86000000).toISOString(),
+    },
+    {
+      id: 'msg-5',
+      thread_id: 'thread-3',
+      role: 'user',
+      content: 'Next Tuesday is my first college seminar on Cloud Infrastructure. My voice trembles when looking at a large audience.',
+      created_at: new Date(Date.now() - 5 * 86400000).toISOString(),
+    },
+    {
+      id: 'msg-6',
+      thread_id: 'thread-3',
+      role: 'assistant',
+      content: 'Stepping onto a public stage is bringing your physical adrenaline to the surface.\n\nRather than speaking to the whole auditorium, what happens if you identify three friendly faces across the room and speak only to one at a time for each key point?',
+      created_at: new Date(Date.now() - 5 * 86400000 + 60000).toISOString(),
+    },
+  ];
+
   return {
     profiles,
     mentors,
@@ -596,8 +668,8 @@ function initializeStore(): MockDataStore {
     activities,
     resources,
     gamification,
-    chatThreads: [],
-    chatMessages: [],
+    chatThreads,
+    chatMessages,
     aiFlags,
     trusteeFeedback,
     mentorNotes,
@@ -892,5 +964,109 @@ export function updateMentorProfile(
 
   return store.mentors[mentorIndex];
 }
+
+// AI Chat Thread & Message Helpers
+export function getStudentChatThreads(studentId: string): ChatThread[] {
+  const store = getMockStore();
+  return store.chatThreads.filter((t) => t.student_id === studentId && !t.archived);
+}
+
+export function getThreadMessages(threadId: string): ChatMessage[] {
+  const store = getMockStore();
+  return store.chatMessages
+    .filter((m) => m.thread_id === threadId)
+    .sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+}
+
+export function createChatThread(studentId: string, title?: string): ChatThread {
+  const store = getMockStore();
+  const newThread: ChatThread = {
+    id: `thread-${Date.now()}`,
+    student_id: studentId,
+    title: title || 'New Mentorship Dialogue',
+    summary: null,
+    archived: false,
+    created_at: new Date().toISOString(),
+  };
+  store.chatThreads.unshift(newThread);
+  return newThread;
+}
+
+export function renameChatThread(threadId: string, title: string): ChatThread | null {
+  const store = getMockStore();
+  const thread = store.chatThreads.find((t) => t.id === threadId);
+  if (!thread) return null;
+  thread.title = title.trim();
+  return thread;
+}
+
+export function deleteChatThread(threadId: string): boolean {
+  const store = getMockStore();
+  const index = store.chatThreads.findIndex((t) => t.id === threadId);
+  if (index === -1) return false;
+  store.chatThreads.splice(index, 1);
+  // Also remove associated messages
+  store.chatMessages = store.chatMessages.filter((m) => m.thread_id !== threadId);
+  return true;
+}
+
+export function clearChatThreadMessages(threadId: string): boolean {
+  const store = getMockStore();
+  store.chatMessages = store.chatMessages.filter((m) => m.thread_id !== threadId);
+  return true;
+}
+
+export function addChatMessage(threadId: string, role: 'user' | 'assistant', content: string): ChatMessage {
+  const store = getMockStore();
+  const msg: ChatMessage = {
+    id: `msg-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+    thread_id: threadId,
+    role,
+    content,
+    created_at: new Date().toISOString(),
+  };
+  store.chatMessages.push(msg);
+
+  // Auto-generate thread title if it's the first user message on a default-titled thread
+  if (role === 'user') {
+    const thread = store.chatThreads.find((t) => t.id === threadId);
+    if (thread && (thread.title === 'New Mentorship Dialogue' || thread.title === 'New Chat')) {
+      const words = content.trim().split(/\s+/).slice(0, 5).join(' ');
+      thread.title = words.length > 35 ? words.substring(0, 32) + '...' : words;
+    }
+  }
+
+  return msg;
+}
+
+export function getDailyChatQuota(studentId: string): { used: number; remaining: number; max: number } {
+  const store = getMockStore();
+  const todayStr = new Date().toISOString().split('T')[0];
+  const studentThreadIds = new Set(
+    store.chatThreads.filter((t) => t.student_id === studentId).map((t) => t.id)
+  );
+  const usedToday = store.chatMessages.filter(
+    (m) =>
+      studentThreadIds.has(m.thread_id) &&
+      m.role === 'user' &&
+      m.created_at.startsWith(todayStr)
+  ).length;
+
+  const max = 30;
+  return {
+    used: usedToday,
+    remaining: Math.max(0, max - usedToday),
+    max,
+  };
+}
+
+export function updateThreadSummary(threadId: string, summary: string): void {
+  const store = getMockStore();
+  const thread = store.chatThreads.find((t) => t.id === threadId);
+  if (thread) {
+    thread.summary = summary;
+  }
+}
+
 
 

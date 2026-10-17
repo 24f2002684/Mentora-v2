@@ -85,14 +85,36 @@ export async function streamGeminiContent(
 ) {
   const ai = getGeminiClient();
   const model = getGeminiModelName();
+  const maxRetries = 2;
+  let delay = 1200;
 
-  return ai.models.generateContentStream({
-    model,
-    contents,
-    config: {
-      systemInstruction,
-      temperature: 0.7,
-      maxOutputTokens: 600,
-    },
-  });
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    try {
+      return await ai.models.generateContentStream({
+        model,
+        contents,
+        config: {
+          systemInstruction,
+          temperature: 0.7,
+          maxOutputTokens: 600,
+        },
+      });
+    } catch (error: unknown) {
+      const isRetryable =
+        error instanceof Error &&
+        (error.message.includes('503') ||
+          error.message.includes('429') ||
+          error.message.includes('high demand') ||
+          error.message.includes('UNAVAILABLE'));
+
+      if (isRetryable && attempt < maxRetries) {
+        await new Promise((resolve) => setTimeout(resolve, delay));
+        delay *= 1.5;
+        continue;
+      }
+      throw error;
+    }
+  }
+
+  throw new Error('Exceeded retry attempts for Gemini streaming call.');
 }
